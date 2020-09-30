@@ -13,6 +13,8 @@ public class Case extends JPanel implements MouseListener {
     int i;
     int j;
     boolean revealed = false;
+    GUI lclGui;
+    boolean enabledClick = true;
 
 
 
@@ -23,6 +25,7 @@ public class Case extends JPanel implements MouseListener {
         this.caseValue= caseValue;
         this.i = i;
         this.j = j;
+        this.lclGui = gui;
 
         setPreferredSize(new Dimension(DIM, DIM)); // taille de la case
         if(!revealed)
@@ -76,10 +79,40 @@ public class Case extends JPanel implements MouseListener {
 
     }
 
+    public void newGame(){
+        revealed = false;
+        repaint();
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        this.enabledClick=enabled;
+    }
+
     @Override
     public void mouseClicked(MouseEvent e) {
-        revealed = true;
-        repaint();
+        if(enabledClick)
+        {
+            revealed = true;
+            lclGui.counter.start();
+            repaint();
+            if(lclGui.demineur.getGameChamp().champ[i][j]== -1)
+            {
+                lclGui.blockGame();
+                if (JOptionPane.showConfirmDialog(
+                        null,
+                        "You lost ! Would you like to start over ?",
+                        "Defeat",
+                        JOptionPane.YES_NO_OPTION
+                ) == JOptionPane.YES_OPTION) {
+                    lclGui.newGame(lclGui.demineur.getGameChamp().getNiveauChamp());
+                }
+            }
+
+        }
+
+
+
     }
 
     @Override

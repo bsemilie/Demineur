@@ -44,6 +44,15 @@ public class Champ {
         }
     }
 
+    public void setLevel(Common.Niveau niveau){
+        switch (niveau) {
+            case EASY -> initChamp(easyLevel[0], easyLevel[1], easyLevel[2]);
+            case MEDIUM -> initChamp(mediumLevel[0], mediumLevel[1], mediumLevel[2]);
+            case HARD -> initChamp(hardLevel[0], hardLevel[1], hardLevel[2]);
+            case CUSTOM -> initChamp(customLevel[0], customLevel[1], customLevel[2]);
+            default -> throw new IllegalStateException("Unexpected value: " + niveau);
+        }
+    }
 
     /**
      * Fonction d'initialisation d'un champ avec des paramètres en arguments

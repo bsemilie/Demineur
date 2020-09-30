@@ -19,10 +19,8 @@ public class Demineur extends JFrame {
         return gameChamp;
     }
 
-
     public Demineur(){
-        gameChamp = new Champ(Common.Niveau.MEDIUM);
-        System.out.println(gameChamp + "\n\n");
+        gameChamp = new Champ();
 
 
         GUI gui = new GUI(this);
@@ -35,8 +33,16 @@ public class Demineur extends JFrame {
 
         setVisible(true);
     }
+
     public static void main(String[] args){
 
        new Demineur();
     }
+
+    void quit() {
+        System.out.println("Adios");
+        System.exit(0);
+    }
+
+
 }
