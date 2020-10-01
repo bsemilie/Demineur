@@ -19,9 +19,11 @@ public class GUI extends JPanel implements ActionListener {
     private JMenuItem mEasy = new JMenuItem("Easy", KeyEvent.VK_E);
     private JMenuItem mMedium = new JMenuItem("Medium", KeyEvent.VK_M);
     private JMenuItem mHard = new JMenuItem("Hard", KeyEvent.VK_H);
+    private JMenuItem mCustom = new JMenuItem("Custom", KeyEvent.VK_C);
 
 
     public JPanel centerPanel = new JPanel();
+    public JPanel westPanel = new JPanel();
 
 
 
@@ -40,7 +42,7 @@ public class GUI extends JPanel implements ActionListener {
         JPanel topPanel = createTopPanel();
         JPanel bottomPanel = createBottomPanel();
         createCenterPanel();
-        JPanel westPanel = createWestPanel();
+        createWestPanel();
 
 
         add(topPanel, BorderLayout.NORTH);
@@ -82,6 +84,8 @@ public class GUI extends JPanel implements ActionListener {
         mMedium.addActionListener(this);
         menuLevel.add(mHard);
         mHard.addActionListener(this);
+        menuLevel.add(mCustom);
+        mCustom.addActionListener(this);
 
         menuLevel.add(Reset);
         Reset.addActionListener(this);
@@ -137,19 +141,21 @@ public class GUI extends JPanel implements ActionListener {
 
     }
 
-    public JPanel createWestPanel(){
-        JPanel westPanel = new JPanel();
+    public void createWestPanel(){
         JLabel niveau = new JLabel("Niveau: " + demineur.getGameChamp().getNiveauChamp(), JLabel.CENTER);
-        westPanel.setLayout(new FlowLayout());
-        westPanel.add(niveau);
-        return westPanel;
+        westPanel.setLayout(new BorderLayout());
+        westPanel.add(niveau, BorderLayout.CENTER);
+
     }
 
     void newGame(Common.Niveau niveau) {
         demineur.getGameChamp().setLevel(niveau);
         centerPanel.removeAll();
+        westPanel.removeAll();
+        createWestPanel();
         createCenterPanel();
         add(centerPanel, BorderLayout.CENTER);
+        add(westPanel, BorderLayout.WEST);
 
         for (int _i = 0; _i < demineur.getGameChamp().dimX; _i++) {
             for (int _j = 0; _j < demineur.getGameChamp().dimY; _j++) {
@@ -160,6 +166,7 @@ public class GUI extends JPanel implements ActionListener {
         centerPanel.repaint();
         counter.reset();
         demineur.pack();
+        System.out.println(demineur.getGameChamp().toString());
     }
 
     void blockGame(){
@@ -185,18 +192,40 @@ public class GUI extends JPanel implements ActionListener {
         }
         else if(mEasy.equals(source))
         {
+            blockGame();
             newGame(Common.Niveau.EASY);
         }
         else if(mMedium.equals(source))
         {
+            blockGame();
             newGame(Common.Niveau.MEDIUM);
         }
         else if(mHard.equals(source))
         {
+            blockGame();
             newGame(Common.Niveau.HARD);
+        }
+        else if(mCustom.equals(source))
+        {
+            String customParameters = JOptionPane.showInputDialog(null, "Enter the parameters for the custom level, first the X dimension, then Y dimension, then number of mines", "Custom");
+            System.out.println(customParameters);
+
+            String[] arrayCustomParameters = customParameters.split(",");
+
+            int dimX = Integer.parseInt(arrayCustomParameters[0]);
+            int dimY = Integer.parseInt(arrayCustomParameters[1]);
+            int mines = Integer.parseInt(arrayCustomParameters[2]);
+
+           demineur.getGameChamp().customLevel[0] = dimX;
+           demineur.getGameChamp().customLevel[1] = dimY;
+           demineur.getGameChamp().customLevel[2] = mines;
+
+            newGame(Common.Niveau.CUSTOM);
+
         }
         else if(Reset.equals(source))
         {
+            blockGame();
             newGame(demineur.getGameChamp().getNiveauChamp());
         }
     }

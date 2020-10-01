@@ -12,13 +12,19 @@ public class Champ {
     private final static int NB_MINES_DEF=5; //Nombre de mines par défault
     private final static int MINE = -1; //Valeur en entier d'une mine
     public int[][] champ; //Tableau de bool
+
+
+
     public static int dimX; // Dimension X du champ
     public static int dimY; //Dimension Y du champ
-    static int nbMines; //Nombre de Mines dans le champ
+
+
+
+    public static int nbMines; //Nombre de Mines dans le champ
     final static int[] easyLevel = {10,10,16}; //Paramètres du niveau facile
     final static int[] mediumLevel= {20,20,63}; //Paramètres du niveau medium
     final static int[] hardLevel = {30, 30, 141}; //Paramètres du niveau difficile
-    static int[] customLevel = {Common.customSizeX,Common.customSizeY,Common.customNbMines}; //Paramètres du niveau custom
+    public int[] customLevel = new int[3]; //Paramètres du niveau custom
 
 
     Random aleaGenerator = new Random(); //générateur d'aléatoire
@@ -189,6 +195,18 @@ public class Champ {
         {
             return Common.Niveau.CUSTOM;
         }
+    }
+
+    public static int getNbMines() {
+        return nbMines;
+    }
+
+    public static int getDimX() {
+        return dimX;
+    }
+
+    public static int getDimY() {
+        return dimY;
     }
 }
 

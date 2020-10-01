@@ -13,6 +13,7 @@ public class Case extends JPanel implements MouseListener {
     int i;
     int j;
     boolean revealed = false;
+    private boolean counted;
     GUI lclGui;
     boolean enabledClick = true;
 
@@ -58,13 +59,17 @@ public class Case extends JPanel implements MouseListener {
             {
                 if(caseValue.equals("0"))
                 {
-                    gc.drawString("", 8, 15);
+                    drawCenterString(gc, "");
                     setBackground(Color.LIGHT_GRAY);
+                    countCases();
+                    counted = true;
                 }
                 else
                 {
-                    gc.drawString(caseValue, 8,15);
+                    drawCenterString(gc,caseValue);
                     setBackground(Color.LIGHT_GRAY);
+                    countCases();
+                    counted= true;
                 }
 
             }
@@ -79,9 +84,59 @@ public class Case extends JPanel implements MouseListener {
 
     }
 
+    /**
+     * This method is used to draw a string at the center of the case, in a responsive way.
+     *
+     * @param gc an instance of the Graphic class, which is used in order to draw onto components.
+     * @param txt string to draw inside graphic
+     */
+    private void drawCenterString(Graphics gc, String txt) {
+        FontMetrics fm = gc.getFontMetrics();
+        int stringWidth = fm.stringWidth(txt);
+        int stringAccent = fm.getAscent();
+        int xCoordinate = getWidth() / 2 - stringWidth / 2;
+        int yCoordinate = getHeight() / 2 + stringAccent / 2;
+        gc.drawString(txt, xCoordinate, yCoordinate);
+    }
+
     public void newGame(){
         revealed = false;
         repaint();
+    }
+
+
+    /**
+     * Computes the number of clicked cases during a game in the single-player mode. If the number of cases equals
+     * the size of the champ minus the number of mines, then the game is won and it offers to start a new one.
+     */
+    private void countCases(){
+        if(!counted) {
+            lclGui.demineur.setNbDiscoveredCases(lclGui.demineur.getNbDiscoveredCases() + 1);
+            repaint();
+            //All cases except cases representing bombes were discovered so it is a win
+            if (lclGui.demineur.getGameChamp().getNbMines() == ((lclGui.demineur.getGameChamp().getDimX() * lclGui.demineur.getGameChamp().getDimY()) - lclGui.demineur.getNbDiscoveredCases())) {
+
+                lclGui.blockGame();
+
+                int input = JOptionPane.showConfirmDialog(
+                        null,
+                        "Congrats ! You won this round, well played !\nWanna play again ?",
+                        "Good job my boy !!!",
+                        JOptionPane.YES_NO_OPTION);
+                if(input == JOptionPane.YES_OPTION){
+                    lclGui.newGame(lclGui.demineur.getGameChamp().getNiveauChamp());
+                }
+
+                /*if (JOptionPane.showConfirmDialog(
+                        null,
+                        "Congrats ! You won this round, well played !\nWanna play again ?",
+                        "Good job my boy !!!",
+                        JOptionPane.YES_NO_OPTION
+                ) == JOptionPane.YES_OPTION) {
+                    lclGui.newGame(lclGui.demineur.getGameChamp().getNiveauChamp());
+                }*/
+            }
+        }
     }
 
     @Override
@@ -94,6 +149,7 @@ public class Case extends JPanel implements MouseListener {
         if(enabledClick)
         {
             revealed = true;
+
             lclGui.counter.start();
             repaint();
             if(lclGui.demineur.getGameChamp().champ[i][j]== -1)
@@ -109,9 +165,8 @@ public class Case extends JPanel implements MouseListener {
                 }
             }
 
+
         }
-
-
 
     }
 

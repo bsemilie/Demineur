@@ -15,13 +15,16 @@ public class Demineur extends JFrame {
 
     private Champ gameChamp;
 
+
+    private int nbDiscoveredCases = 0;
+
     public Champ getGameChamp() {
         return gameChamp;
     }
 
     public Demineur(){
         gameChamp = new Champ();
-
+        System.out.println(gameChamp.toString());
 
         GUI gui = new GUI(this);
         ImageIcon img = new ImageIcon(getClass().getResource("minesIcon.png"));
@@ -44,5 +47,12 @@ public class Demineur extends JFrame {
         System.exit(0);
     }
 
+    public int getNbDiscoveredCases() {
+        return nbDiscoveredCases;
+    }
+
+    public void setNbDiscoveredCases(int nbDiscoveredCases) {
+        this.nbDiscoveredCases = nbDiscoveredCases;
+    }
 
 }
