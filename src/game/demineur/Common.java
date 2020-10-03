@@ -1,3 +1,4 @@
+package game.demineur;
 public class Common {
 
 

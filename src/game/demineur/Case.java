@@ -1,3 +1,4 @@
+package game.demineur;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -16,12 +17,17 @@ public class Case extends JPanel implements MouseListener {
     private boolean counted;
     GUI lclGui;
     boolean enabledClick = true;
-
-
-
     private final static int DIM = 25;
+    private Color color = Color.lightGray;
 
 
+    /**
+     * Constructor
+     * @param caseValue value of the case, if it is a mine or nb of mines around
+     * @param i x-coordinate of the case
+     * @param j y-coordinate of the case
+     * @param gui gui instance related to this case
+     */
     public Case(String caseValue, int i, int j, GUI gui){
         this.caseValue= caseValue;
         this.i = i;
@@ -36,6 +42,13 @@ public class Case extends JPanel implements MouseListener {
 
     }
 
+    /**
+     * This function is used to repaint a case depending on the context:
+     * - if the case is not revealed it is colored blue
+     * - if the case is clicked and it is a mine the case displays an image
+     * - if it is not a mine, then displays the number of mines around the case
+     * @param gc
+     */
     @Override
     public void paintComponent(Graphics gc){
         super.paintComponent(gc);
@@ -60,14 +73,14 @@ public class Case extends JPanel implements MouseListener {
                 if(caseValue.equals("0"))
                 {
                     drawCenterString(gc, "");
-                    setBackground(Color.LIGHT_GRAY);
+                    setBackground(color);
                     countCases();
                     counted = true;
                 }
                 else
                 {
                     drawCenterString(gc,caseValue);
-                    setBackground(Color.LIGHT_GRAY);
+                    setBackground(color);
                     countCases();
                     counted= true;
                 }
@@ -99,6 +112,9 @@ public class Case extends JPanel implements MouseListener {
         gc.drawString(txt, xCoordinate, yCoordinate);
     }
 
+    /**
+     * This funciton reinitialize the case to its initial state
+     */
     public void newGame(){
         revealed = false;
         repaint();
@@ -112,81 +128,123 @@ public class Case extends JPanel implements MouseListener {
     private void countCases(){
         if(!counted) {
             lclGui.demineur.setNbDiscoveredCases(lclGui.demineur.getNbDiscoveredCases() + 1);
-            repaint();
+
             //All cases except cases representing bombes were discovered so it is a win
             if (lclGui.demineur.getGameChamp().getNbMines() == ((lclGui.demineur.getGameChamp().getDimX() * lclGui.demineur.getGameChamp().getDimY()) - lclGui.demineur.getNbDiscoveredCases())) {
 
-                lclGui.blockGame();
-
-                int input = JOptionPane.showConfirmDialog(
-                        null,
-                        "Congrats ! You won this round, well played !\nWanna play again ?",
-                        "Good job my boy !!!",
-                        JOptionPane.YES_NO_OPTION);
-                if(input == JOptionPane.YES_OPTION){
-                    lclGui.newGame(lclGui.demineur.getGameChamp().getNiveauChamp());
-                }
-
-                /*if (JOptionPane.showConfirmDialog(
-                        null,
-                        "Congrats ! You won this round, well played !\nWanna play again ?",
+                //lclGui.blockGame();
+                int response = JOptionPane.showConfirmDialog(
+                        lclGui,
+                        "Congrats !",
                         "Good job my boy !!!",
                         JOptionPane.YES_NO_OPTION
-                ) == JOptionPane.YES_OPTION) {
+                );
+                if (response == JOptionPane.YES_OPTION) {
                     lclGui.newGame(lclGui.demineur.getGameChamp().getNiveauChamp());
-                }*/
+                }
             }
         }
     }
 
+    /**
+     * This functions set a boolean to a certain value to define if the case can be clicked on
+     * @param enabled
+     */
     @Override
     public void setEnabled(boolean enabled) {
         this.enabledClick=enabled;
     }
 
+    /**
+     * THis function is called when the mouse perform an action on a case component
+     * @param e
+     */
     @Override
     public void mouseClicked(MouseEvent e) {
-        if(enabledClick)
-        {
-            revealed = true;
-
-            lclGui.counter.start();
-            repaint();
-            if(lclGui.demineur.getGameChamp().champ[i][j]== -1)
+        if(lclGui.demineur.getClient() == null){
+            if(enabledClick)
             {
-                lclGui.blockGame();
-                if (JOptionPane.showConfirmDialog(
-                        null,
-                        "You lost ! Would you like to start over ?",
-                        "Defeat",
-                        JOptionPane.YES_NO_OPTION
-                ) == JOptionPane.YES_OPTION) {
-                    lclGui.newGame(lclGui.demineur.getGameChamp().getNiveauChamp());
+                revealed = true;
+
+                lclGui.counter.start();
+                repaint();
+                if(lclGui.demineur.getGameChamp().champ[i][j]== -1)
+                {
+                    lclGui.blockGame();
+                    if (JOptionPane.showConfirmDialog(
+                            null,
+                            "You lost ! Would you like to start over ?",
+                            "Defeat",
+                            JOptionPane.YES_NO_OPTION
+                    ) == JOptionPane.YES_OPTION) {
+                        lclGui.newGame(lclGui.demineur.getGameChamp().getNiveauChamp());
+                    }
                 }
+
+
             }
+        }
+       else {
+           try{
+               if(lclGui.demineur.getClient().isStarted()){
+                   lclGui.demineur.getClient().getOut().writeUTF("click " + i + " " + j);
+               }
+           } catch (IOException exception){
+               exception.printStackTrace();
 
-
+           }
         }
 
     }
 
+    /**
+     * Method not used
+     * @param e
+     */
     @Override
     public void mousePressed(MouseEvent e){
 
 }
 
+    /**
+     * Method not used
+     * @param e
+     */
     @Override
     public void mouseReleased(MouseEvent e) {
 
     }
 
+    /**
+     * Method not used
+     * @param e
+     */
     @Override
     public void mouseEntered(MouseEvent e) {
 
     }
 
+    /**
+     * Method not used
+     * @param e
+     */
     @Override
     public void mouseExited(MouseEvent e) {
+
+    }
+
+    /**
+     *  This function is only used in multi-player mode
+     *  It replaces the case value send by the server and send it to each client and repaint the case a the same time
+     *  with the color of the client who clicked on it
+     * @param caseValue
+     * @param playerColor
+     */
+    void clientRepaint(String caseValue, Color playerColor){
+        revealed = true;
+        this.caseValue = caseValue;
+        color = playerColor;
+        repaint();
 
     }
 

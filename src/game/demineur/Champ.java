@@ -1,4 +1,4 @@
-import javax.swing.*;
+package game.demineur;
 import java.util.Random;
 
 
@@ -7,20 +7,19 @@ import java.util.Random;
  */
 public class Champ {
 
-    public final static int DIMX_DEF=10; //Dimension X par default
-    public final static int DIMY_DEF=10; //Dimension Y par défault
-    private final static int NB_MINES_DEF=5; //Nombre de mines par défault
+
     private final static int MINE = -1; //Valeur en entier d'une mine
+
+
+
     public int[][] champ; //Tableau de bool
 
 
 
     public static int dimX; // Dimension X du champ
     public static int dimY; //Dimension Y du champ
-
-
-
     public static int nbMines; //Nombre de Mines dans le champ
+
     final static int[] easyLevel = {10,10,16}; //Paramètres du niveau facile
     final static int[] mediumLevel= {20,20,63}; //Paramètres du niveau medium
     final static int[] hardLevel = {30, 30, 141}; //Paramètres du niveau difficile
@@ -30,15 +29,15 @@ public class Champ {
     Random aleaGenerator = new Random(); //générateur d'aléatoire
 
     /**
-     * Constructeur par défaut
+     * Constructor
      */
     public Champ(){
        this(Common.Niveau.EASY);
     }
 
     /**
-     * Constructeur de champ en fonction du niveau choisi
-     * @param niveau niveau de jeu
+     * Constructor
+     * @param niveau of game chosen
      */
     public Champ(Common.Niveau niveau){
         switch (niveau) {
@@ -50,6 +49,11 @@ public class Champ {
         }
     }
 
+
+    /**
+     * This function set level for the field and init with dimension parameters
+     * @param niveau of difficulty chosen
+     */
     public void setLevel(Common.Niveau niveau){
         switch (niveau) {
             case EASY -> initChamp(easyLevel[0], easyLevel[1], easyLevel[2]);
@@ -61,10 +65,10 @@ public class Champ {
     }
 
     /**
-     * Fonction d'initialisation d'un champ avec des paramètres en arguments
-     * @param Xsize dimension X du champ
-     * @param Ysize dimension Y du champ
-     * @param nb_Mines nombre de mines du champ
+     * This function initializes a field with parameters in args
+     * @param Xsize dimension X of field
+     * @param Ysize dimension Y of field
+     * @param nb_Mines of the field
      */
     public void initChamp(int Xsize, int Ysize, int nb_Mines)
     {
@@ -79,7 +83,7 @@ public class Champ {
 
 
     /**
-     * Fonction pour placer aléatoirement des mines dans un champ donné
+     * This function place randomly mines in the field
      */
     public void placeMines(){
         for (int minesCounter=0; minesCounter<nbMines; minesCounter++){
@@ -98,7 +102,7 @@ public class Champ {
     }
 
     /**
-     * Fonction pour afficher un champ avec Mines et nombre de mines autour
+     * THis function display a field with mines and nb of mines around each case
      */
     public void affChamp(){
         System.out.println("VOICI LE CHAMP");
@@ -121,7 +125,7 @@ public class Champ {
     }
 
     /**
-     * Affichage du champ en string
+     * This function display a filed in string format
      * @return
      */
     public String toString(){
@@ -130,10 +134,10 @@ public class Champ {
     }
 
     /**
-     * Fonction pour calculer le nombre de mines autour d'une case
-     * @param X position X de la case
-     * @param Y position Y de la case
-     * @return nombre de mines
+     * This function calculates the nb of mines aorund the selected case and returns it
+     * @param X  x-coordinate of the case
+     * @param Y y-coordinate of the case
+     * @return
      */
     public int calculNbMines(int X, int Y){
         int NbMines =0;
@@ -157,7 +161,7 @@ public class Champ {
     }
 
     /**
-     * Fonction pour mettre le nombre de mines autour d'une case dans la case
+     * This function set teh case value with nb of mines around
      */
     public void setNbMinesCase()
     {
@@ -177,6 +181,10 @@ public class Champ {
         }
     }
 
+    /**
+     * This function returns the level of the field
+     * @return
+     */
     public Common.Niveau getNiveauChamp()
     {
         if(dimX == easyLevel[0] && dimY == easyLevel[1] && nbMines == easyLevel[2])
@@ -197,16 +205,36 @@ public class Champ {
         }
     }
 
+    /**
+     * This function returns the nb of mines in the field
+     * @return
+     */
     public static int getNbMines() {
         return nbMines;
     }
 
+    /**
+     * This function returns the x dimension of the field
+     * @return
+     */
     public static int getDimX() {
         return dimX;
     }
 
+    /**
+     * This function returns the y dimension of the field
+     * @return
+     */
     public static int getDimY() {
         return dimY;
+    }
+
+    /**
+     * This function returns the board of the field where case value are stored
+     * @return
+     */
+    public int[][] getBoard() {
+        return champ;
     }
 }
 
