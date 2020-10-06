@@ -1,5 +1,6 @@
 package game.demineur;
 import java.util.Random;
+import java.util.zip.CheckedOutputStream;
 
 
 /**
@@ -9,7 +10,7 @@ public class Champ {
 
 
     private final static int MINE = -1; //Valeur en entier d'une mine
-
+    private Common.Niveau niveau;
 
 
     public int[][] champ; //Tableau de bool
@@ -32,21 +33,16 @@ public class Champ {
      * Constructor
      */
     public Champ(){
-       this(Common.Niveau.EASY);
+
     }
 
     /**
-     * Constructor
+     * Creates a new champ instance depending on difficulty
      * @param niveau of game chosen
      */
     public Champ(Common.Niveau niveau){
-        switch (niveau) {
-            case EASY -> initChamp(easyLevel[0], easyLevel[1], easyLevel[2]);
-            case MEDIUM -> initChamp(mediumLevel[0], mediumLevel[1], mediumLevel[2]);
-            case HARD -> initChamp(hardLevel[0], hardLevel[1], hardLevel[2]);
-            case CUSTOM -> initChamp(customLevel[0], customLevel[1], customLevel[2]);
-            default -> throw new IllegalStateException("Unexpected value: " + niveau);
-        }
+       this();
+       setChamp(niveau);
     }
 
 
@@ -54,32 +50,36 @@ public class Champ {
      * This function set level for the field and init with dimension parameters
      * @param niveau of difficulty chosen
      */
-    public void setLevel(Common.Niveau niveau){
-        switch (niveau) {
-            case EASY -> initChamp(easyLevel[0], easyLevel[1], easyLevel[2]);
-            case MEDIUM -> initChamp(mediumLevel[0], mediumLevel[1], mediumLevel[2]);
-            case HARD -> initChamp(hardLevel[0], hardLevel[1], hardLevel[2]);
-            case CUSTOM -> initChamp(customLevel[0], customLevel[1], customLevel[2]);
-            default -> throw new IllegalStateException("Unexpected value: " + niveau);
+    public void setChamp(Common.Niveau niveau){
+        if(niveau == Common.Niveau.EASY){
+            this.niveau = niveau;
+            this.dimX = easyLevel[0];
+            this.dimY = easyLevel[1];
+            this.nbMines = easyLevel[2];
+            this.champ = new int[dimX][dimY];
+        }
+        else if(niveau == Common.Niveau.MEDIUM){
+            this.niveau = niveau;
+            this.dimX = mediumLevel[0];
+            this.dimY = mediumLevel[1];
+            this.nbMines = mediumLevel[2];
+            this.champ = new int[dimX][dimY];
+        }
+        else if(niveau == Common.Niveau.HARD){
+            this.niveau = niveau;
+            this.dimX = hardLevel[0];
+            this.dimY = hardLevel[1];
+            this.nbMines = hardLevel[2];
+            this.champ = new int[dimX][dimY];
+        }
+        else if(niveau == Common.Niveau.CUSTOM){
+            this.niveau = niveau;
+            this.dimX = customLevel[0];
+            this.dimY = customLevel[1];
+            this.nbMines = customLevel[2];
+            this.champ = new int[dimX][dimY];
         }
     }
-
-    /**
-     * This function initializes a field with parameters in args
-     * @param Xsize dimension X of field
-     * @param Ysize dimension Y of field
-     * @param nb_Mines of the field
-     */
-    public void initChamp(int Xsize, int Ysize, int nb_Mines)
-    {
-        dimX = Xsize;
-        dimY = Ysize;
-        nbMines = nb_Mines;
-        this.champ = new int[dimX][dimY];
-        placeMines();
-        setNbMinesCase();
-    }
-
 
 
     /**

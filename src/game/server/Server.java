@@ -15,7 +15,7 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Random;
 
-public class Server extends Thread {
+class Server extends Thread {
 
     private int playerId = 0;
     private ServerSocket serverSocket;
@@ -23,7 +23,7 @@ public class Server extends Thread {
     private DateFormat dateFormat = new SimpleDateFormat("HH:mm");
     private GUIserver guiServer;
     private Champ champ;
-    private Boolean[][] clickedCases;
+    private boolean[][] clickedCases;
 
 
     Server(int port, GUIserver guiServer) {
@@ -59,7 +59,10 @@ public class Server extends Thread {
                 clientThread.start();
 
 
-            } catch (IOException e) {
+            } catch (SocketException ignored){
+
+            }
+            catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -95,7 +98,8 @@ public class Server extends Thread {
     void stopSocketServer() {
         try {
             serverSocket.close();
-        } catch (IOException e) {
+        } catch (SocketException ignored)
+        {} catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -125,8 +129,10 @@ public class Server extends Thread {
         }
         broadcastMessage("start" + " " + getDate() + " " + level);
         this.champ = new Champ(Common.Niveau.valueOf(level));
-        this.clickedCases = new Boolean[champ.getDimX()][champ.getDimY()];
+        this.clickedCases = new boolean[champ.getDimX()][champ.getDimY()];
         champ.placeMines();
+        champ.setNbMinesCase();
+        System.out.println(champ.toString());
     }
 
     /**
@@ -165,7 +171,7 @@ public class Server extends Thread {
             broadcastMessage("eliminated" + " " + getDate() + " " + clientThread.getPlayerName() + " "+ x + " " + y + " " + clientThread.getPlayerColor().getRGB() + " " + clientThread.getScore() + " " + clientThread.getClientId());
         } else {
             int nbMinesAround = champ.calculNbMines(x, y);
-            broadcastMessage("clicked" + " " + Integer.valueOf(nbMinesAround) + " " + x + " " + y + clientThread.getPlayerColor().getRGB());
+            broadcastMessage("clicked" + " " + nbMinesAround + " " + x + " " + y + " " + clientThread.getPlayerColor().getRGB());
         }
     }
 
@@ -175,7 +181,7 @@ public class Server extends Thread {
      */
     void checkEndGame() {
         int totalScore = 0;
-        int nbCases = getClickedCases().length * getClickedCases().length - champ.getNbMines();
+        int nbCases = getClickedCases().length * getClickedCases().length - getChamp().getNbMines();
 
         for (ClientThread clientThread : clientList) {
             totalScore += clientThread.getScore();
@@ -236,7 +242,7 @@ public class Server extends Thread {
      * This function returns the array defining which cases have been clicked
      * @return
      */
-    Boolean[][] getClickedCases(){return clickedCases;}
+    boolean[][] getClickedCases(){return clickedCases;}
 
     /**
      * This function return the GUi linked to the server

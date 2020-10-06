@@ -7,39 +7,39 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Calendar;
 
 public class Case extends JPanel implements MouseListener {
 
     String caseValue;
     int i;
     int j;
-    boolean revealed = false;
+    private boolean revealed = false;
     private boolean counted;
-    GUI lclGui;
-    boolean enabledClick = true;
+    private Demineur demineur;
+    private Counter counter;
+    private boolean enabledClick;
     private final static int DIM = 25;
     private Color color = Color.lightGray;
+    private int value;
 
 
     /**
      * Constructor
-     * @param caseValue value of the case, if it is a mine or nb of mines around
      * @param i x-coordinate of the case
      * @param j y-coordinate of the case
-     * @param gui gui instance related to this case
+     * @param demineur demineur instance related to this case
      */
-    public Case(String caseValue, int i, int j, GUI gui){
-        this.caseValue= caseValue;
+    public Case(int i, int j, Counter counter, Demineur demineur){
+
         this.i = i;
         this.j = j;
-        this.lclGui = gui;
+        this.demineur = demineur;
+        this.counter = counter;
+        this.enabledClick = true;
 
         setPreferredSize(new Dimension(DIM, DIM)); // taille de la case
-        if(!revealed)
-        {
-            addMouseListener(this);
-        }
-
+        addMouseListener(this);
     }
 
     /**
@@ -54,7 +54,7 @@ public class Case extends JPanel implements MouseListener {
         super.paintComponent(gc);
         if(revealed)
         {
-            if(caseValue.equals("X"))
+            if(value == -1)
             {
 
                 try {
@@ -70,7 +70,7 @@ public class Case extends JPanel implements MouseListener {
             }
             else
             {
-                if(caseValue.equals("0"))
+                if(value == 0)
                 {
                     drawCenterString(gc, "");
                     setBackground(color);
@@ -79,7 +79,7 @@ public class Case extends JPanel implements MouseListener {
                 }
                 else
                 {
-                    drawCenterString(gc,caseValue);
+                    drawCenterString(gc,Integer.toString(value));
                     setBackground(color);
                     countCases();
                     counted= true;
@@ -117,6 +117,8 @@ public class Case extends JPanel implements MouseListener {
      */
     public void newGame(){
         revealed = false;
+        enabledClick = true;
+        counted = false;
         repaint();
     }
 
@@ -126,21 +128,24 @@ public class Case extends JPanel implements MouseListener {
      * the size of the champ minus the number of mines, then the game is won and it offers to start a new one.
      */
     private void countCases(){
-        if(!counted) {
-            lclGui.demineur.setNbDiscoveredCases(lclGui.demineur.getNbDiscoveredCases() + 1);
+        if(!counted && (demineur.getClient() == null)) {
+            demineur.setNbDiscoveredCases(demineur.getNbDiscoveredCases() + 1);
 
             //All cases except cases representing bombes were discovered so it is a win
-            if (lclGui.demineur.getGameChamp().getNbMines() == ((lclGui.demineur.getGameChamp().getDimX() * lclGui.demineur.getGameChamp().getDimY()) - lclGui.demineur.getNbDiscoveredCases())) {
+            if (demineur.getGameChamp().getNbMines() == ((demineur.getGameChamp().getDimX() * demineur.getGameChamp().getDimY()) - demineur.getNbDiscoveredCases())) {
 
-                //lclGui.blockGame();
+                demineur.getGuiClient().blockGame();
+                demineur.getScoreRegistering().getScoreLinkedList().add(new Score(demineur.getGuiClient().getCounter().getTime(), demineur.getScoreRegistering().getDateFormat().format(Calendar.getInstance().getTime()), demineur.getGameChamp().getNiveauChamp().name()));
+                demineur.getScoreRegistering().write();
+
                 int response = JOptionPane.showConfirmDialog(
-                        lclGui,
+                        null,
                         "Congrats !",
                         "Good job my boy !!!",
                         JOptionPane.YES_NO_OPTION
                 );
                 if (response == JOptionPane.YES_OPTION) {
-                    lclGui.newGame(lclGui.demineur.getGameChamp().getNiveauChamp());
+                    demineur.getGuiClient().newGame();
                 }
             }
         }
@@ -161,39 +166,7 @@ public class Case extends JPanel implements MouseListener {
      */
     @Override
     public void mouseClicked(MouseEvent e) {
-        if(lclGui.demineur.getClient() == null){
-            if(enabledClick)
-            {
-                revealed = true;
 
-                lclGui.counter.start();
-                repaint();
-                if(lclGui.demineur.getGameChamp().champ[i][j]== -1)
-                {
-                    lclGui.blockGame();
-                    if (JOptionPane.showConfirmDialog(
-                            null,
-                            "You lost ! Would you like to start over ?",
-                            "Defeat",
-                            JOptionPane.YES_NO_OPTION
-                    ) == JOptionPane.YES_OPTION) {
-                        lclGui.newGame(lclGui.demineur.getGameChamp().getNiveauChamp());
-                    }
-                }
-
-
-            }
-        }
-       else {
-           try{
-               if(lclGui.demineur.getClient().isStarted()){
-                   lclGui.demineur.getClient().getOut().writeUTF("click " + i + " " + j);
-               }
-           } catch (IOException exception){
-               exception.printStackTrace();
-
-           }
-        }
 
     }
 
@@ -203,7 +176,37 @@ public class Case extends JPanel implements MouseListener {
      */
     @Override
     public void mousePressed(MouseEvent e){
+        if(demineur.getClient() == null){
+            if(enabledClick)
+            {
+                counter.start();
+                repaint();
+                revealed = true;
+                value = demineur.getGameChamp().champ[i][j];
+                if(demineur.getGameChamp().champ[i][j]== -1)
+                {
+                    demineur.getGuiClient().blockGame();
+                    if (JOptionPane.showConfirmDialog(
+                            null,
+                            "You lost ! Would you like to start over ?",
+                            "Defeat",
+                            JOptionPane.YES_NO_OPTION
+                    ) == JOptionPane.YES_OPTION) {
+                        demineur.getGuiClient().newGame();
+                    }
+                }
+            }
+        }
+        else {
+            try{
+                if(demineur.getClient().isStarted()){
+                    demineur.getClient().getOut().writeUTF("click " + i + " " + j);
+                }
+            } catch (IOException exception){
+                exception.printStackTrace();
 
+            }
+        }
 }
 
     /**
@@ -240,9 +243,9 @@ public class Case extends JPanel implements MouseListener {
      * @param caseValue
      * @param playerColor
      */
-    void clientRepaint(String caseValue, Color playerColor){
+    void clientRepaint(int caseValue, Color playerColor){
         revealed = true;
-        this.caseValue = caseValue;
+        value = caseValue;
         color = playerColor;
         repaint();
 

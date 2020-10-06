@@ -31,6 +31,9 @@ public class GUI extends JPanel implements ActionListener {
     private JLabel ipAddressLabel = new JLabel("Ip Address: ");
     private JTextField ipAddress = new JTextField("localhost");
     private JLabel pseudoLabel = new JLabel("Pseudo: ");
+
+
+
     public JTextField pseudo = new JTextField("", 5);
 
     private JButton connect = new JButton("Connect");
@@ -42,7 +45,6 @@ public class GUI extends JPanel implements ActionListener {
 
     public JPanel topPanel = new JPanel();
     public JPanel centerPanel = new JPanel();
-    public JPanel westPanel = new JPanel();
 
 
     /**
@@ -65,6 +67,7 @@ public class GUI extends JPanel implements ActionListener {
         add(topPanel, BorderLayout.NORTH);
         add(centerPanel, BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
+        counter.setPreferredSize(new Dimension(100,600));
         add(counter, BorderLayout.WEST);
         createGameMenu();
 
@@ -163,11 +166,12 @@ public class GUI extends JPanel implements ActionListener {
     public void createCenterPanel()
     {
 
-        GridLayout centerGrid = new GridLayout(demineur.getGameChamp().dimX,demineur.getGameChamp().dimY, 5,5);
+
         tabCase= new Case[demineur.getGameChamp().dimX][demineur.getGameChamp().dimY];
 
-        centerPanel.setPreferredSize(new Dimension(500, 500));
-        centerPanel.setLayout(centerGrid);
+
+        centerPanel.setLayout(new GridLayout(demineur.getGameChamp().getDimX(), demineur.getGameChamp().getDimY()));
+
 
         for (int _i=0; _i<demineur.getGameChamp().dimX;_i++)
         {
@@ -175,16 +179,22 @@ public class GUI extends JPanel implements ActionListener {
             {
                 if(demineur.getGameChamp().champ[_i][_j] == -1)
                 {
-                    tabCase[_i][_j] = new Case("X", _i, _j, this);
+
+                    tabCase[_i][_j] = new Case(_i, _j, counter, demineur);
                     centerPanel.add(tabCase[_i][_j]);
+
                 }
                 else
                 {
-                    tabCase[_i][_j] = new Case(String.valueOf(demineur.getGameChamp().champ[_i][_j]), _i, _j, this);
+                    tabCase[_i][_j] = new Case( _i, _j, counter, demineur);
                     centerPanel.add(tabCase[_i][_j]);
+
                 }
+                System.out.println();
             }
         }
+
+
 
     }
 
@@ -222,28 +232,42 @@ public class GUI extends JPanel implements ActionListener {
 
     /**
      * This function starts a new game by resetting attributes
-     * @param niveau of the new game
      */
-    void newGame(Common.Niveau niveau) {
-        demineur.getGameChamp().setLevel(niveau);
-        centerPanel.removeAll();
-        topPanel.removeAll();
-        createTopPanel();
-        createCenterPanel();
-        add(centerPanel, BorderLayout.CENTER);
-        add(westPanel, BorderLayout.WEST);
+    void newGame() {
+        if(demineur.getClient() == null){
+            demineur.getGameChamp().placeMines();
+            demineur.getGameChamp().setNbMinesCase();
+        }
+
 
         for (int _i = 0; _i < demineur.getGameChamp().dimX; _i++) {
             for (int _j = 0; _j < demineur.getGameChamp().dimY; _j++) {
                 tabCase[_i][_j].newGame();
             }
         }
-        centerPanel.revalidate();
-        centerPanel.repaint();
+
         counter.reset();
-        demineur.pack();
-        System.out.println(demineur.getGameChamp().toString());
+        demineur.setNbDiscoveredCases(0);
     }
+
+    void newGame(Common.Niveau niveau){
+        if(demineur.getClient() == null){
+            demineur.getGameChamp().setChamp(niveau);
+        }
+        centerPanel.removeAll();
+        createCenterPanel();
+        add(centerPanel, BorderLayout.CENTER);
+        newGame();
+        /*centerPanel.revalidate();*/
+        centerPanel.repaint();
+        demineur.pack();
+    }
+
+
+
+
+
+
 
     /**
      * This function block the game when a mine is hit
@@ -345,12 +369,14 @@ public class GUI extends JPanel implements ActionListener {
         else if(Reset.equals(source))
         {
             blockGame();
-            newGame(demineur.getGameChamp().getNiveauChamp());
+            newGame();
         }
-
+        else if(centerPanel.equals(source)){
+            counter.start();
+        }
         else if(connect.equals(source))
         {
-           demineur.setClient(new Client(ipAddress.getText(), port.getText(),pseudo.getText(), this));
+           demineur.setClient(new Client(ipAddress.getText(), port.getText(),pseudo.getText(), demineur));
         }else if (sendChat.equals(source)) {
             String message = this.chat.getText();
             this.chat.setText("");
@@ -388,4 +414,14 @@ public class GUI extends JPanel implements ActionListener {
         ipAddress.setEnabled(true);
         connect.setEnabled(true);
     }
+
+    /**
+     * THis function returns the pseudo associated to this instance of GUI client
+     * @return
+     */
+    public JTextField getPseudo() {
+        return pseudo;
+    }
+
+    Counter getCounter(){return counter;}
 }

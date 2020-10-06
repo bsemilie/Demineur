@@ -28,6 +28,7 @@ public class GUIserver extends JFrame implements ActionListener {
 
         setLayout(new BorderLayout());
         log.setEditable(false);
+        log.setEditable(false);
 
         JScrollPane jScrollPane = new JScrollPane(log);
         JLabel title = new JLabel("Server management");
@@ -36,7 +37,6 @@ public class GUIserver extends JFrame implements ActionListener {
 
         add(createBottomPane(), BorderLayout.SOUTH);
 
-        setPreferredSize(new Dimension(900,600));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
 
@@ -51,6 +51,7 @@ public class GUIserver extends JFrame implements ActionListener {
     public static void main(String[] args){
         GUIserver guiserver = new GUIserver();
     }
+
     private JPanel createBottomPane(){
         JPanel bottomPane= new JPanel();
 
@@ -63,6 +64,7 @@ public class GUIserver extends JFrame implements ActionListener {
         launch.addActionListener(this);
         bottomPane.add(stop);
         stop.addActionListener(this);
+        stop.setEnabled(false);
         return bottomPane;
 
     }
@@ -96,15 +98,14 @@ public class GUIserver extends JFrame implements ActionListener {
                     ) == JOptionPane.YES_OPTION) server.closeServer();
                 }
             });
-        }
-        else if(launch.equals(source) && launch.getText().equals("Start game")){
+        } else if(launch.equals(source) && launch.getText().equals("Start game")){
             gameStarted = true;
             port.setEnabled(false);
             levelComboBox.setEnabled(false);
             stop.setEnabled(true);
             launch.setText("Pause game");
 
-            server.stopSocketServer();
+            //server.stopSocketServer();
             log.append("Entering connections are now blocked.\n Game will begin with " + server.clientListLength() + " players, in " + levelComboBox.getSelectedItem() + " mode\n");
             server.startGame((String) levelComboBox.getSelectedItem());
         } else if(launch.equals(source) && launch.getText().equals("Pause game")){

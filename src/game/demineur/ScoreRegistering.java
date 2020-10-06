@@ -8,7 +8,12 @@ import java.util.LinkedList;
 
 public class ScoreRegistering {
 
+
+
     private LinkedList<Score> scoreLinkedList= new LinkedList<Score>();
+
+
+
     private DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
 
     /**
@@ -48,6 +53,14 @@ public class ScoreRegistering {
             e.printStackTrace();
         }
 
+    }
+
+    public LinkedList<Score> getScoreLinkedList() {
+        return scoreLinkedList;
+    }
+
+    public DateFormat getDateFormat() {
+        return dateFormat;
     }
 }
 

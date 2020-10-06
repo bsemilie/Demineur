@@ -16,7 +16,7 @@ public class Client extends Thread{
     public Socket socket;
     public DataOutputStream out;
     public DataInputStream in;
-    private GUI guiClient;
+    private Demineur demineur;
     private boolean started;
     private boolean replaying;
 
@@ -25,18 +25,18 @@ public class Client extends Thread{
      * @param ipAddress of the server
      * @param port on which server accept connections
      * @param playerName name of the player, Denis is player's name by default + random number
-     * @param guiClient  actual instance of GUI client
+     * @param demineur  actual instance of demineur
      */
-    Client(String ipAddress, String port, String playerName, GUI guiClient){
+    Client(String ipAddress, String port, String playerName, Demineur demineur){
         try {
-            this.guiClient = guiClient;
+            this.demineur = demineur;
             socket = new Socket(ipAddress, Integer.parseInt(port));
             out = new DataOutputStream(socket.getOutputStream());
             in = new DataInputStream(socket.getInputStream());
             Random r = new Random();
             if (playerName.isEmpty()) {
                 this.PlayerName = "Denis" + r.nextInt();
-                guiClient.pseudo.setText(playerName);
+                demineur.getGuiClient().getPseudo().setText(playerName);
 
             } else {
                 this.PlayerName = playerName;
@@ -63,10 +63,10 @@ public class Client extends Thread{
     @Override
     public void run() {
         try {
-            guiClient.createLog();
+            demineur.getGuiClient().createLog();
             out.writeUTF(PlayerName);
             PlayerId = in.readInt();
-            guiClient.displayID();
+            demineur.getGuiClient().displayID();
 
             while (this != null) {
                 String input = in.readUTF();
@@ -79,9 +79,9 @@ public class Client extends Thread{
                         started = true;
                         date = inputArray[1];
                         String difficulty = inputArray[2];
-                        guiClient.appendToPane(date + " - Game started !\n Difficulty: " + difficulty + "\n", Color.BLACK, true);
-                        guiClient.demineur.getGameChamp().setLevel(Common.Niveau.valueOf(difficulty));
-                        guiClient.newGame(Common.Niveau.valueOf(difficulty));
+                        demineur.getGuiClient().appendToPane(date + " - Game started !\n Difficulty: " + difficulty + "\n", Color.BLACK, true);
+                        demineur.getGameChamp().setChamp(Common.Niveau.valueOf(difficulty));
+                        demineur.getGuiClient().newGame(Common.Niveau.valueOf(difficulty));
                         break;
                     case "eliminated":
                         date = inputArray[1];
@@ -91,9 +91,9 @@ public class Client extends Thread{
                         playerColor = inputArray[5];
                         playerScore = inputArray[6];
                         playerId = Integer.parseInt(inputArray[7]);
-                        guiClient.appendToPane(date + " - " + playerName + " is eliminated ! His score: " + playerScore + " points\n", new Color(Integer.parseInt(playerColor)), true);
-                        guiClient.getTabCase()[x][y].clientRepaint("X", new Color(Integer.parseInt(playerColor)));
-                        if (playerId == guiClient.demineur.getClient().getPlayerId()) {
+                        demineur.getGuiClient().appendToPane(date + " - " + playerName + " is eliminated ! His score: " + playerScore + " points\n", new Color(Integer.parseInt(playerColor)), true);
+                        demineur.getGuiClient().getTabCase()[x][y].clientRepaint(-1, new Color(Integer.parseInt(playerColor)));
+                        if (playerId == demineur.getGuiClient().demineur.getClient().getPlayerId()) {
                             if (JOptionPane.showConfirmDialog(
                                     null,
                                     "Game is over. YOur score: " + playerScore + " points\nDo you want to wait the next game?",
@@ -113,7 +113,7 @@ public class Client extends Thread{
                         x = Integer.parseInt(inputArray[2]);
                         y = Integer.parseInt(inputArray[3]);
                         playerColor = inputArray[4];
-                        guiClient.getTabCase()[x][y].clientRepaint(Integer.toString(nbMines), new Color(Integer.parseInt(playerColor)));
+                        demineur.getGuiClient().getTabCase()[x][y].clientRepaint(nbMines, new Color(Integer.parseInt(playerColor)));
                         break;
                     case "pause":
                         date = inputArray[1];
@@ -123,16 +123,16 @@ public class Client extends Thread{
                                 "Pause",
                                 JOptionPane.DEFAULT_OPTION
                         );
-                        guiClient.appendToPane(date + " - Game has been paused\n", Color.BLACK, true);
+                        demineur.getGuiClient().appendToPane(date + " - Game has been paused\n", Color.BLACK, true);
                         break;
                     case "resume":
                         date = inputArray[1];
-                        guiClient.appendToPane(date + " - Game has been resumed\n", Color.BLACK, true);
+                        demineur.getGuiClient().appendToPane(date + " - Game has been resumed\n", Color.BLACK, true);
                         break;
                     case "left":
                         date = inputArray[1];
                         playerName = inputArray[2];
-                        guiClient.appendToPane(date + " - " + playerName + " has left the game\n", Color.BLACK, true);
+                        demineur.getGuiClient().appendToPane(date + " - " + playerName + " has left the game\n", Color.BLACK, true);
                         break;
                     case "end":
                         if (!replaying) {
@@ -159,15 +159,15 @@ public class Client extends Thread{
                             message.append(inputArray[i]).append(" ");
                         }
                         message.append("\n");
-                        guiClient.appendToPane(message.toString(), new Color(Integer.parseInt(playerColor)), true);
+                        demineur.getGuiClient().appendToPane(message.toString(), new Color(Integer.parseInt(playerColor)), true);
                         break;
                     default:
-                        guiClient.appendToPane(input, Color.BLACK, true);
+                        demineur.getGuiClient().appendToPane(input, Color.BLACK, true);
                 }
 
             }
         } catch (IOException e) {
-            guiClient.appendToPane("Connection lost ...\n", Color.red, true);
+            demineur.getGuiClient().appendToPane("Connection lost ...\n", Color.red, true);
             int choice = JOptionPane.showConfirmDialog(
                     null,
                     "You have lost your connection to the server! DO you want to play in solo mode ?",
@@ -190,10 +190,10 @@ public class Client extends Thread{
         }catch (IOException e){
             e.printStackTrace();
         }
-        guiClient.demineur.setClient(null);
-        guiClient.demineur.getGameChamp().setLevel(Common.Niveau.EASY);
-        guiClient.newGame(Common.Niveau.EASY);
-        guiClient.disableOnlineDisplay();
+        demineur.setClient(null);
+        demineur.getGameChamp().setChamp(Common.Niveau.EASY);
+        demineur.getGuiClient().newGame(Common.Niveau.EASY);
+        demineur.getGuiClient().disableOnlineDisplay();
     }
 
     /**

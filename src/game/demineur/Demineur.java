@@ -14,7 +14,8 @@ public class Demineur extends JFrame {
 
 
     private Champ gameChamp;
-    public Client client;
+    private GUI GUIclient;
+    public Client client = null;
     private int nbDiscoveredCases = 0;
     private ScoreRegistering scoreRegistering = new ScoreRegistering();
 
@@ -22,13 +23,14 @@ public class Demineur extends JFrame {
      * Constructor which creates frame where demineur is
      */
     public Demineur(){
-        gameChamp = new Champ();
-        System.out.println(gameChamp.toString());
+        super("Demineur");
+        gameChamp = new Champ(Common.Niveau.EASY);
+        gameChamp.placeMines();
 
-        GUI gui = new GUI(this);
+        GUIclient = new GUI(this);
         ImageIcon img = new ImageIcon(getClass().getResource("minesIcon.png"));
         setIconImage(img.getImage());
-        setContentPane(gui);
+        setContentPane(GUIclient);
         setPreferredSize(new Dimension(900,600));
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         pack();
@@ -56,6 +58,7 @@ public class Demineur extends JFrame {
      * This function terminates the process of demineur
      */
     void quit() {
+        scoreRegistering.write();
         System.out.println("Adios");
         System.exit(0);
     }
@@ -105,4 +108,8 @@ public class Demineur extends JFrame {
         return scoreRegistering;
     }
 
+    /**
+     * This function returns the GUI associated to this instance of demineur
+     */
+    public GUI getGuiClient(){ return GUIclient;}
 }
