@@ -8,15 +8,15 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
+/**
+ * THis class manages the client interface in multi-player mode or game interface in single-player mode
+ * It is a JPanel and uses an action listener
+ */
 public class GUI extends JPanel implements ActionListener {
 
-    public Demineur demineur;
-
-
-
-    public Case[][] tabCase;
-
-    public Counter counter = new Counter(200, 20);
+    public Demineur demineur; //DEmineur instance for interface
+    public Case[][] tabCase; //Array of case to display on interface
+    public Counter counter = new Counter(200, 20); //Time counter
 
     private JMenuItem Reset = new JMenuItem("Reset", KeyEvent.VK_R);
     private JMenuItem Quit = new JMenuItem("Quit", KeyEvent.VK_Q);
@@ -35,9 +35,7 @@ public class GUI extends JPanel implements ActionListener {
 
 
     public JTextField pseudo = new JTextField("", 5);
-
     private JButton connect = new JButton("Connect");
-
     private JTextPane log = new JTextPane();
     private JTextArea chat = new JTextArea(1,20);
     private JButton sendChat = new JButton("Send");
@@ -56,22 +54,15 @@ public class GUI extends JPanel implements ActionListener {
 
         this.demineur = demineur;
 
-
-
-
         createTopPanel();
         JPanel bottomPanel = createBottomPanel();
         createCenterPanel();
-
-
         add(topPanel, BorderLayout.NORTH);
         add(centerPanel, BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
         counter.setPreferredSize(new Dimension(100,600));
         add(counter, BorderLayout.WEST);
         createGameMenu();
-
-
     }
 
     /**
@@ -124,15 +115,9 @@ public class GUI extends JPanel implements ActionListener {
 
         Reset.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.META_DOWN_MASK));
 
-        //Make some space
-        jMenuBar.add(Box.createGlue());
 
-        //Menu help
-        JMenu menuHelp = new JMenu("Help");
-        JMenuItem mAbout = new JMenuItem("About this");
 
-        jMenuBar.add(menuHelp);
-        menuHelp.add(mAbout);
+
 
         demineur.setJMenuBar(jMenuBar);
 
@@ -231,12 +216,13 @@ public class GUI extends JPanel implements ActionListener {
     }
 
     /**
-     * This function starts a new game by resetting attributes
+     * This function starts a new game by resetting each case and recreating the field in demineur instance if it is single-player mode
      */
     void newGame() {
         if(demineur.getClient() == null){
             demineur.getGameChamp().placeMines();
             demineur.getGameChamp().setNbMinesCase();
+            demineur.getGameChamp().toString();
         }
 
 
@@ -250,6 +236,10 @@ public class GUI extends JPanel implements ActionListener {
         demineur.setNbDiscoveredCases(0);
     }
 
+    /**
+     * This function starts a new game with a level in parameter and reset the interface
+     * @param niveau
+     */
     void newGame(Common.Niveau niveau){
         if(demineur.getClient() == null){
             demineur.getGameChamp().setChamp(niveau);
@@ -338,9 +328,9 @@ public class GUI extends JPanel implements ActionListener {
         }
         else if(mCustom.equals(source))
         {
-            JTextField dimX = new JTextField();
-            JTextField dimY = new JTextField();
-            JTextField nbMines = new JTextField();
+            JTextField dimX = new JTextField("2");
+            JTextField dimY = new JTextField("2");
+            JTextField nbMines = new JTextField("1");
             Object[] parameters = {
                     "Dimension X:", dimX,
                     "Dimension Y:", dimY,
@@ -359,9 +349,6 @@ public class GUI extends JPanel implements ActionListener {
                 demineur.getGameChamp().customLevel[1] = DimY;
                 demineur.getGameChamp().customLevel[2] = mines;
             }
-
-
-
 
             newGame(Common.Niveau.CUSTOM);
 
@@ -423,5 +410,9 @@ public class GUI extends JPanel implements ActionListener {
         return pseudo;
     }
 
+    /**
+     * This function returns the time counter
+     * @return
+     */
     Counter getCounter(){return counter;}
 }

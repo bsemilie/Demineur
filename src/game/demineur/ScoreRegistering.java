@@ -6,15 +6,15 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.LinkedList;
 
+/**
+ * This class is used to store each score in single-player mode in bestScores.csv file
+ */
 public class ScoreRegistering {
 
 
 
-    private LinkedList<Score> scoreLinkedList= new LinkedList<Score>();
-
-
-
-    private DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+    private LinkedList<Score> scoreLinkedList= new LinkedList<Score>(); //List of scores
+    private DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss"); //format for date
 
     /**
      * Constructor
@@ -55,10 +55,18 @@ public class ScoreRegistering {
 
     }
 
+    /**
+     * This function returns the list of score
+     * @return
+     */
     public LinkedList<Score> getScoreLinkedList() {
         return scoreLinkedList;
     }
 
+    /**
+     * This function returns the date format
+     * @return
+     */
     public DateFormat getDateFormat() {
         return dateFormat;
     }
@@ -68,9 +76,9 @@ public class ScoreRegistering {
  * This class is used to store each score of a player
  */
 class Score{
-    private String rating;
-    private String date;
-    private String level;
+    private String rating; //Score of player which is the value of counter at the end of the game
+    private String date; //Date where score was made
+    private String level; //Level in which score was made
 
     /**
      * Constructor

@@ -4,18 +4,13 @@ import java.util.zip.CheckedOutputStream;
 
 
 /**
- * Classe pour un champ de démineur
+ * This class is a field for a demineur instance
  */
 public class Champ {
 
-
     private final static int MINE = -1; //Valeur en entier d'une mine
-    private Common.Niveau niveau;
-
-
-    public int[][] champ; //Tableau de bool
-
-
+    private Common.Niveau niveau; //Level of the demineur game
+    public int[][] champ; //Int array to represent the field
 
     public static int dimX; // Dimension X du champ
     public static int dimY; //Dimension Y du champ

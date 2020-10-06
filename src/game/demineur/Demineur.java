@@ -9,15 +9,17 @@ import java.awt.event.WindowEvent;
  * @version 2.0
  */
 
+/**
+ * This class is used to launch the demineur instance or end
+ * It also contains functions to get or set variables of the demineur instance
+ */
 public class Demineur extends JFrame {
 
-
-
-    private Champ gameChamp;
-    private GUI GUIclient;
-    public Client client = null;
-    private int nbDiscoveredCases = 0;
-    private ScoreRegistering scoreRegistering = new ScoreRegistering();
+    private Champ gameChamp; //Field of the demineur instance
+    private GUI GUIclient; //Graphic user interface for a client/ or single-player mode
+    public Client client = null; //client associated to this instance in multi-player mode
+    private int nbDiscoveredCases = 0; //Number of cases revealed
+    private ScoreRegistering scoreRegistering = new ScoreRegistering(); //Instance to register score in single-player mode
 
     /**
      * Constructor which creates frame where demineur is
@@ -26,7 +28,6 @@ public class Demineur extends JFrame {
         super("Demineur");
         gameChamp = new Champ(Common.Niveau.EASY);
         gameChamp.placeMines();
-
         GUIclient = new GUI(this);
         ImageIcon img = new ImageIcon(getClass().getResource("minesIcon.png"));
         setIconImage(img.getImage());
@@ -50,7 +51,6 @@ public class Demineur extends JFrame {
     }
 
     public static void main(String[] args){
-
        new Demineur();
     }
 

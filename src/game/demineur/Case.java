@@ -9,19 +9,22 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 
+/**
+ * This class represent a case of a minesweeper(demineur).
+ * It is a JPanel which uses a MouseListener
+ */
 public class Case extends JPanel implements MouseListener {
 
-    String caseValue;
-    int i;
-    int j;
-    private boolean revealed = false;
-    private boolean counted;
-    private Demineur demineur;
-    private Counter counter;
-    private boolean enabledClick;
-    private final static int DIM = 25;
-    private Color color = Color.lightGray;
-    private int value;
+    int i; //x-coordinate of the case
+    int j; //y-coordinate of the case
+    private boolean revealed = false; //if case was already clicked on or not
+    private boolean counted; //if case was counted or not to know when game ends
+    private Demineur demineur; //demineur instance where the case is
+    private Counter counter; //Time counter which start when a case is first cliked on
+    private boolean enabledClick; //Allow case to be clicked on depending if game is stopped
+    private final static int DIM = 25; //Dimension of the case
+    private Color color = Color.lightGray; //Color to reveal case
+    private int value; //Value behind the case
 
 
     /**
@@ -36,9 +39,9 @@ public class Case extends JPanel implements MouseListener {
         this.j = j;
         this.demineur = demineur;
         this.counter = counter;
-        this.enabledClick = true;
+        this.enabledClick = true; //Case can be clicked on
 
-        setPreferredSize(new Dimension(DIM, DIM)); // taille de la case
+        setPreferredSize(new Dimension(DIM, DIM)); // set case size
         addMouseListener(this);
     }
 
@@ -59,10 +62,6 @@ public class Case extends JPanel implements MouseListener {
 
                 try {
                     BufferedImage image = ImageIO.read(new File("img/Bomb.png"));
-                    if(image == null)
-                    {
-                        System.out.println("Image is null");
-                    }
                     gc.drawImage(image, 0, 0, this.getWidth(), this.getHeight(), this);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -72,7 +71,7 @@ public class Case extends JPanel implements MouseListener {
             {
                 if(value == 0)
                 {
-                    drawCenterString(gc, "");
+                    drawCenterString(gc, ""); //0 is not display, case is empty
                     setBackground(color);
                     countCases();
                     counted = true;
@@ -107,8 +106,8 @@ public class Case extends JPanel implements MouseListener {
         FontMetrics fm = gc.getFontMetrics();
         int stringWidth = fm.stringWidth(txt);
         int stringAccent = fm.getAscent();
-        int xCoordinate = getWidth() / 2 - stringWidth / 2;
-        int yCoordinate = getHeight() / 2 + stringAccent / 2;
+        int xCoordinate = getWidth() / 2 - stringWidth / 2; //x-coordinate use to center text horizontally
+        int yCoordinate = getHeight() / 2 + stringAccent / 2; //y-coordinate use to center text vertically
         gc.drawString(txt, xCoordinate, yCoordinate);
     }
 
@@ -129,12 +128,13 @@ public class Case extends JPanel implements MouseListener {
      */
     private void countCases(){
         if(!counted && (demineur.getClient() == null)) {
-            demineur.setNbDiscoveredCases(demineur.getNbDiscoveredCases() + 1);
+            demineur.setNbDiscoveredCases(demineur.getNbDiscoveredCases() + 1); //New case was discovered
 
             //All cases except cases representing bombes were discovered so it is a win
             if (demineur.getGameChamp().getNbMines() == ((demineur.getGameChamp().getDimX() * demineur.getGameChamp().getDimY()) - demineur.getNbDiscoveredCases())) {
 
                 demineur.getGuiClient().blockGame();
+                //Add the score in the score sheet
                 demineur.getScoreRegistering().getScoreLinkedList().add(new Score(demineur.getGuiClient().getCounter().getTime(), demineur.getScoreRegistering().getDateFormat().format(Calendar.getInstance().getTime()), demineur.getGameChamp().getNiveauChamp().name()));
                 demineur.getScoreRegistering().write();
 
@@ -160,20 +160,11 @@ public class Case extends JPanel implements MouseListener {
         this.enabledClick=enabled;
     }
 
+
     /**
      * THis function is called when the mouse perform an action on a case component
-     * @param e
-     */
-    @Override
-    public void mouseClicked(MouseEvent e) {
-
-
-    }
-
-    /**
-     * Method not used
-     * @param e
-     */
+     * @param e mouse event
+     * */
     @Override
     public void mousePressed(MouseEvent e){
         if(demineur.getClient() == null){
@@ -182,8 +173,8 @@ public class Case extends JPanel implements MouseListener {
                 counter.start();
                 repaint();
                 revealed = true;
-                value = demineur.getGameChamp().champ[i][j];
-                if(demineur.getGameChamp().champ[i][j]== -1)
+                value = demineur.getGameChamp().champ[i][j]; //Get value of case
+                if(demineur.getGameChamp().champ[i][j]== -1) //Case is a bomb -> defeat
                 {
                     demineur.getGuiClient().blockGame();
                     if (JOptionPane.showConfirmDialog(
@@ -192,7 +183,7 @@ public class Case extends JPanel implements MouseListener {
                             "Defeat",
                             JOptionPane.YES_NO_OPTION
                     ) == JOptionPane.YES_OPTION) {
-                        demineur.getGuiClient().newGame();
+                        demineur.getGuiClient().newGame(demineur.getGameChamp().getNiveauChamp());
                     }
                 }
             }
@@ -200,14 +191,29 @@ public class Case extends JPanel implements MouseListener {
         else {
             try{
                 if(demineur.getClient().isStarted()){
-                    demineur.getClient().getOut().writeUTF("click " + i + " " + j);
+                    demineur.getClient().getOut().writeUTF("click " + i + " " + j);//send instruction that case was clicked
                 }
             } catch (IOException exception){
                 exception.printStackTrace();
 
             }
         }
-}
+    }
+
+    /**
+     *  This function is only used in multi-player mode
+     *  It replaces the case value send by the server and send it to each client and repaint the case a the same time
+     *  with the color of the client who clicked on it
+     * @param caseValue value of the case clicked
+     * @param playerColor color of the player who clicked on the case
+     */
+    void clientRepaint(int caseValue, Color playerColor){
+        revealed = true;
+        value = caseValue;
+        color = playerColor;
+        repaint();
+
+    }
 
     /**
      * Method not used
@@ -237,19 +243,14 @@ public class Case extends JPanel implements MouseListener {
     }
 
     /**
-     *  This function is only used in multi-player mode
-     *  It replaces the case value send by the server and send it to each client and repaint the case a the same time
-     *  with the color of the client who clicked on it
-     * @param caseValue
-     * @param playerColor
+     * Method not used
      */
-    void clientRepaint(int caseValue, Color playerColor){
-        revealed = true;
-        value = caseValue;
-        color = playerColor;
-        repaint();
+    @Override
+    public void mouseClicked(MouseEvent e) {
+
 
     }
+
 
 
 }

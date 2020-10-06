@@ -9,6 +9,9 @@ import java.awt.event.WindowEvent;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+/**
+ * THis class manages the display of the server interface and interactions with clients
+ */
 public class GUIserver extends JFrame implements ActionListener {
 
     private JLabel portLabel = new JLabel("Port: ");
@@ -17,18 +20,19 @@ public class GUIserver extends JFrame implements ActionListener {
     private JComboBox<String> levelComboBox = new JComboBox<>(new String[]{"EASY", "MEDIUM", "HARD"});
     private JButton launch = new JButton("Launch");
     private JButton stop = new JButton("Stop");
-
     private JTextArea log = new JTextArea("Press 'Launch' to accept connections\n", 20, 40);
 
     private boolean gameStarted = false;
     private Server server;
 
+    /**
+     * Constructor
+     */
     private GUIserver(){
         super("Demineur serveur");
 
         setLayout(new BorderLayout());
-        log.setEditable(false);
-        log.setEditable(false);
+        log.setEditable(false); //Make impossible to write on log
 
         JScrollPane jScrollPane = new JScrollPane(log);
         JLabel title = new JLabel("Server management");
@@ -52,6 +56,10 @@ public class GUIserver extends JFrame implements ActionListener {
         GUIserver guiserver = new GUIserver();
     }
 
+    /**
+     * This function creates the bottom panel for the interface with server related parameters and button to start game
+     * @return bottomPane Jpanel for bottom panel
+     */
     private JPanel createBottomPane(){
         JPanel bottomPane= new JPanel();
 
@@ -70,7 +78,10 @@ public class GUIserver extends JFrame implements ActionListener {
     }
 
 
-
+    /**
+     * This function handles all performed action on the interface
+     * @param e
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
@@ -105,7 +116,6 @@ public class GUIserver extends JFrame implements ActionListener {
             stop.setEnabled(true);
             launch.setText("Pause game");
 
-            //server.stopSocketServer();
             log.append("Entering connections are now blocked.\n Game will begin with " + server.clientListLength() + " players, in " + levelComboBox.getSelectedItem() + " mode\n");
             server.startGame((String) levelComboBox.getSelectedItem());
         } else if(launch.equals(source) && launch.getText().equals("Pause game")){

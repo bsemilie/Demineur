@@ -15,17 +15,25 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Random;
 
+/**
+ * This class is used in the client-server process but on the server-side.
+ * It extends a thread
+ */
 class Server extends Thread {
 
-    private int playerId = 0;
-    private ServerSocket serverSocket;
-    private HashSet<ClientThread> clientList = new HashSet<>();
-    private DateFormat dateFormat = new SimpleDateFormat("HH:mm");
-    private GUIserver guiServer;
-    private Champ champ;
-    private boolean[][] clickedCases;
+    private int playerId = 0; //Id for client connected
+    private ServerSocket serverSocket; //Socket for server
+    private HashSet<ClientThread> clientList = new HashSet<>(); //List of clients
+    private DateFormat dateFormat = new SimpleDateFormat("HH:mm"); //Date format for log display
+    private GUIserver guiServer; //Server graphic interface
+    private Champ champ; //Field created by server when game starts
+    private boolean[][] clickedCases; //Array of boolean to know which case was discovered
 
-
+    /**
+     * Constructor
+     * @param port of the server
+     * @param guiServer graphic interface of server
+     */
     Server(int port, GUIserver guiServer) {
         this.guiServer = guiServer;
         try {
@@ -35,6 +43,10 @@ class Server extends Thread {
         }
     }
 
+    /**
+     * Starts the server's thread. This thread is only used to accept client's entering connexions and create a
+     * dedicated thread for each client.
+     */
     @Override
     public void run() {
         while(!(guiServer.isGameStarted())){
@@ -252,23 +264,24 @@ class Server extends Thread {
 
 }
 
+/**
+ * This class is used to manage a client thread when connected to a server.
+ */
 class ClientThread extends Thread {
 
-    private Socket sock;
-    private DataInputStream in;
-    private DataOutputStream out;
-    private int clientId;
+    private Socket sock; //Socket for the thread
+    private DataInputStream in; //Data input for the thread
+    private DataOutputStream out; //Data output for the thread
+    private int clientId; //Id of client thread
 
-
-
-    private String PlayerName;
-    private Server server;
-    private Color playerColor = new Color(new Random().nextInt(255), new Random().nextInt(255), new Random().nextInt(255));
-    private int score = 0;
-    private int overallScore = 0;
-    private boolean disabled = true;
-    private boolean wantsToReplay;
-    private boolean hasLeft = false;
+    private String PlayerName; //Name of client thread
+    private Server server; //Name of server thread is connected to
+    private Color playerColor = new Color(new Random().nextInt(255), new Random().nextInt(255), new Random().nextInt(255)); //Color of client thread
+    private int score = 0; //Score of player
+    private int overallScore = 0; //Score through all rounds
+    private boolean disabled = true; //thread is activated or not
+    private boolean wantsToReplay; //client wants to replay or not
+    private boolean hasLeft = false; //client has left server or not
 
     /**
      * Constructor

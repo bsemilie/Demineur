@@ -7,18 +7,21 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.Random;
 
+/**
+ * This class in used in the client-server process, on the client-side.
+ * It extends the Thread class
+ */
 public class Client extends Thread{
 
 
-    private int PlayerId;
-
-    public String PlayerName;
-    public Socket socket;
-    public DataOutputStream out;
-    public DataInputStream in;
-    private Demineur demineur;
-    private boolean started;
-    private boolean replaying;
+    private int PlayerId; //Id of this client
+    public String PlayerName; //Name of the client
+    public Socket socket; // Socket for connection
+    public DataOutputStream out; //Data output stream for client
+    public DataInputStream in; //Data input stream for client
+    private Demineur demineur; //demineur instance for the client
+    private boolean started; //defines if game has started
+    private boolean replaying; //defines if client wants to replay
 
     /**
      * Constructor
@@ -35,14 +38,14 @@ public class Client extends Thread{
             in = new DataInputStream(socket.getInputStream());
             Random r = new Random();
             if (playerName.isEmpty()) {
-                this.PlayerName = "Denis" + r.nextInt();
-                demineur.getGuiClient().getPseudo().setText(playerName);
+                this.PlayerName = "Denis" + r.nextInt(); //Name by default
+                this.demineur.getGuiClient().getPseudo().setText(playerName);
 
             } else {
                 this.PlayerName = playerName;
 
             }
-            this.start();
+            this.start(); //Start client thread
         } catch (IOException e) {
             System.out.println("The ip address " + ipAddress + ":" + port + " is unreachable");
             JOptionPane.showConfirmDialog(
@@ -69,12 +72,12 @@ public class Client extends Thread{
             demineur.getGuiClient().displayID();
 
             while (this != null) {
-                String input = in.readUTF();
+                String input = in.readUTF(); //Get instruction from server
                 String[] inputArray = input.split("\\s+");
                 String date, playerColor, playerScore;
                 int x, y, nbMines, playerId;
                 switch (inputArray[0]) {
-                    case "start":
+                    case "start": //game starts
                         replaying = false;
                         started = true;
                         date = inputArray[1];
@@ -83,7 +86,7 @@ public class Client extends Thread{
                         demineur.getGameChamp().setChamp(Common.Niveau.valueOf(difficulty));
                         demineur.getGuiClient().newGame(Common.Niveau.valueOf(difficulty));
                         break;
-                    case "eliminated":
+                    case "eliminated": //client clicked on bomb
                         date = inputArray[1];
                         String playerName = inputArray[2];
                         x = Integer.parseInt(inputArray[3]);
@@ -108,14 +111,14 @@ public class Client extends Thread{
                             }
                         }
                         break;
-                    case "clicked":
+                    case "clicked": //client clicked on case
                         nbMines = Integer.parseInt(inputArray[1]);
                         x = Integer.parseInt(inputArray[2]);
                         y = Integer.parseInt(inputArray[3]);
                         playerColor = inputArray[4];
                         demineur.getGuiClient().getTabCase()[x][y].clientRepaint(nbMines, new Color(Integer.parseInt(playerColor)));
                         break;
-                    case "pause":
+                    case "pause": //Game was paused
                         date = inputArray[1];
                         JOptionPane.showConfirmDialog(
                                 null,
@@ -125,16 +128,16 @@ public class Client extends Thread{
                         );
                         demineur.getGuiClient().appendToPane(date + " - Game has been paused\n", Color.BLACK, true);
                         break;
-                    case "resume":
+                    case "resume": //Game resumes
                         date = inputArray[1];
                         demineur.getGuiClient().appendToPane(date + " - Game has been resumed\n", Color.BLACK, true);
                         break;
-                    case "left":
+                    case "left": //client has left
                         date = inputArray[1];
                         playerName = inputArray[2];
                         demineur.getGuiClient().appendToPane(date + " - " + playerName + " has left the game\n", Color.BLACK, true);
                         break;
-                    case "end":
+                    case "end": //end of game
                         if (!replaying) {
                             if (JOptionPane.showConfirmDialog(
                                     null,
@@ -147,7 +150,7 @@ public class Client extends Thread{
                             }
                         }
                         break;
-                    case "message":
+                    case "message": //chat process
                         date = inputArray[1];
                         playerColor = inputArray[2];
                         playerName = inputArray[3];
